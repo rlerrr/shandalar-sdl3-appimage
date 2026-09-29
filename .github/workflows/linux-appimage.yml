@@ -2,9 +2,14 @@ name: Linux AppImage Build
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the successful AppImage build as a GitHub release
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -132,4 +137,18 @@ jobs:
           path: ${{ github.workspace }}/Shandalar-x86_64.AppImage
           archive: false
           if-no-files-found: error
+
+      - name: Publish release
+        if: ${{ inputs.publish_release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source_sha=$(git rev-parse HEAD)
+          tag="appimage-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          gh release create "$tag" "$GITHUB_WORKSPACE/Shandalar-x86_64.AppImage" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target main \
+            --title "Shandalar AppImage build ${GITHUB_RUN_NUMBER}" \
+            --notes "Built from rlerrr/shandalar-sdl3 x64-port commit ${source_sha}." \
+            --latest
 
