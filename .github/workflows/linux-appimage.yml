@@ -17,20 +17,10 @@ jobs:
     # Pinned to 22.04 (glibc 2.35) so the AppImage runs on older distros too.
     runs-on: ubuntu-22.04
     steps:
-      - name: Check required source credential
-        env:
-          SHANDALAR_SOURCE_PAT: ${{ secrets.SHANDALAR_SOURCE_PAT }}
-        run: |
-          if [[ -z "$SHANDALAR_SOURCE_PAT" ]]; then
-            echo "Set the SHANDALAR_SOURCE_PAT repository secret to a read-only fine-grained PAT for rlerrr/shandalar-sdl3." >&2
-            exit 1
-          fi
-
-      - name: Check out private Shandalar source
+      - name: Check out public Shandalar source
         uses: actions/checkout@v7
         with:
           repository: rlerrr/shandalar-sdl3
-          token: ${{ secrets.SHANDALAR_SOURCE_PAT }}
           persist-credentials: false
           fetch-depth: 0
           ref: x64-port
